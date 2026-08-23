@@ -1,27 +1,53 @@
 /*
 Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"strconv"
 
+	storage "github.com/Kotoninja/task-tracker/internal"
 	"github.com/spf13/cobra"
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "delete [id]",
+	Short: "Delete a task by its ID",
+	Long: `Delete an existing task from your task tracker using its unique ID.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+This command permanently removes a task from your task list based on the
+provided task ID. The task will be deleted from storage and cannot be recovered.
+The command validates that the ID is a valid number and that the task exists.
+
+Examples:
+  task-tracker delete 1
+  task-tracker delete 42
+  task-tracker delete 100
+
+The command accepts exactly one argument - the numeric ID of the task to delete.
+If no ID is provided, the command will prompt you to specify one.
+If multiple arguments are given, the command will display an error message.
+If the ID does not exist in the task list, an appropriate error will be shown.
+
+After successful deletion, the command will confirm that the task has been
+removed from your task tracker.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete called")
+		if len(args) == 1 {
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				if err = storage.StorageIO.Delete(uint64(id)); err != nil {
+					fmt.Println(err)
+				}
+			}
+		} else if len(args) == 0 {
+			fmt.Println("Specify ID")
+		} else {
+			fmt.Println("There is more than one argument")
+		}
 	},
 }
 

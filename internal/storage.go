@@ -82,5 +82,18 @@ func (s *Storage) Add(description string) (string, error) {
 	if err := s.save(); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("Task added successfully (ID: %d)\n", newTask.Id), nil
+	return fmt.Sprintf("Task added successfully (ID: %d)", newTask.Id), nil
+}
+
+func (s *Storage) Delete(id uint64) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	delete(s.tasks, id)
+
+	if err := s.save(); err != nil {
+		return err
+	}
+
+	return nil
 }

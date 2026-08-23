@@ -6,20 +6,31 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/Kotoninja/task-tracker/internal"
+	storage "github.com/Kotoninja/task-tracker/internal"
 	"github.com/spf13/cobra"
 )
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add [description]",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Add a new task to your task list",
+	Long: `Add a new task with the provided description to your task tracker.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+This command creates a new task entry in your task list with a unique ID,
+the provided description, and sets the status to "pending" by default.
+The task is automatically assigned a creation timestamp and saved to storage.
+
+Examples:
+  task-tracker add "Buy groceries"
+  task-tracker add "Complete project documentation"
+  task-tracker add "Schedule team meeting for Friday"
+
+The command accepts exactly one argument - the task description.
+If no description is provided or multiple arguments are given,
+the command will display an appropriate error message.
+
+After successful addition, the command will display a confirmation
+message with the newly created task ID and description.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 1 {
 			output, err := storage.StorageIO.Add(args[0])
