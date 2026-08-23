@@ -15,13 +15,11 @@ import (
 // markInProgressCmd represents the markInProgress command
 var markInProgressCmd = &cobra.Command{
 	Use:   "mark-in-progress [id]",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Mark a task as in-progress",
+	Long: `Set a task as 'in-progress' by providing its ID. 
+This status shows the task is currently being worked on.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Example: task-cli mark-in-progress 7`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 1 {
 			fmt.Println("Please specify the ID")

@@ -14,13 +14,18 @@ import (
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
 	Use:   "update [id] [newDescription]",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Update the description of an existing task",
+	Long: `Update the description of a task identified by its ID. 
+The new description will replace the existing one.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Examples:
+  task-cli update 1 "New task description"
+  task-cli update 5 "Fix critical bug in payment module"
+
+Arguments:
+  [id]              - The unique identifier of the task to update
+  [newDescription]  - The new description text (use quotes for spaces)
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) != 2 {
 			fmt.Println("Please specify the ID and new description.")

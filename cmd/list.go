@@ -28,9 +28,10 @@ The tasks are displayed in a formatted table for easy reading.
 
 Examples:
   task-tracker list
-  task-tracker list --status done
-  task-tracker list --status pending
-  task-tracker list --status in-progress
+
+  task-cli list done
+  task-cli list todo
+  task-cli list in-progress
 
 The command supports optional flags to filter tasks by their status.
 Without any flags, it displays all tasks regardless of their status.
