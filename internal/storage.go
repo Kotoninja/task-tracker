@@ -100,6 +100,31 @@ func (s *Storage) Delete(id uint64) error {
 	return nil
 }
 
+func (s *Storage) Update(id uint64, newDescription *string, newStatus *string) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	task, ok := s.tasks[id]
+	if !ok {
+		return errors.New("There is no task with this ID.")
+	}
+
+	if newDescription != nil {
+		task.Description = *newDescription
+	}
+	if newStatus != nil {
+		task.Status = modules.TaskStatuses(*newStatus)
+	}
+
+	task.UpdatedAt = time.Now()
+	s.tasks[id] = task
+
+	if err := s.save(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Storage) List(status *string) [][]string {
 	s.mx.Lock()
 	defer s.mx.Unlock()
