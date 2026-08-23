@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	status = map[string]int{"todo": 0, "in-progress": 1, "done": 2}
+	status = map[string]string{"todo": "todo", "in-progress": "in-progress", "done": "done"}
 )
 
 // listCmd represents the list command
@@ -40,22 +40,32 @@ and last update time.
 If no tasks exist in the tracker, the command will display an appropriate
 message indicating that the task list is empty.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		var tasks [][]string
 		if len(args) >= 2 {
 			fmt.Println("Too many arguments")
 			return
 		} else if len(args) == 1 {
-			if _, ok := status[args[0]]; ok {
+			if taskStatus, ok := status[args[0]]; ok {
+				tasks = storage.StorageIO.List(&taskStatus)
+			} else {
+				fmt.Println("Status is invalid")
+				return
 			}
 		} else {
+			tasks = storage.StorageIO.List(nil)
+		}
+
+		if len(tasks) != 0 {
 			data := [][]string{
 				{"Id", "Description", "Status", "Created at", "Updated at"},
 			}
-
-			data = append(data, storage.StorageIO.List(nil)...)
+			data = append(data, tasks...)
 			table := tablewriter.NewWriter(os.Stdout)
 			table.Header(data[0])
 			table.Bulk(data[1:])
 			table.Render()
+		} else {
+			fmt.Println("There are no tasks")
 		}
 	},
 }

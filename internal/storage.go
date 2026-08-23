@@ -104,16 +104,18 @@ func (s *Storage) List(status *string) [][]string {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 
-	result := make([][]string, len(s.tasks))
+	result := [][]string{}
 
 	for id, task := range s.tasks {
-		result = append(result, []string{
-			strconv.FormatUint(id, 10),
-			task.Description,
-			string(task.Status),
-			task.CreatedAt.Format(time.DateTime),
-			task.UpdatedAt.Format(time.DateTime),
-		})
+		if status == nil || task.Status == modules.TaskStatuses(*status) {
+			result = append(result, []string{
+				strconv.FormatUint(id, 10),
+				task.Description,
+				string(task.Status),
+				task.CreatedAt.Format(time.DateTime),
+				task.UpdatedAt.Format(time.DateTime),
+			})
+		}
 	}
 	return result
 }
