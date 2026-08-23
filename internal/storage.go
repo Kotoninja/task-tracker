@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"sync"
+	"time"
 
 	"github.com/Kotoninja/task-tracker/pkg/modules"
 )
@@ -96,4 +98,22 @@ func (s *Storage) Delete(id uint64) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) List(status *string) [][]string {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	result := make([][]string, len(s.tasks))
+
+	for id, task := range s.tasks {
+		result = append(result, []string{
+			strconv.FormatUint(id, 10),
+			task.Description,
+			string(task.Status),
+			task.CreatedAt.Format(time.DateTime),
+			task.UpdatedAt.Format(time.DateTime),
+		})
+	}
+	return result
 }
