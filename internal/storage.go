@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
@@ -142,5 +143,10 @@ func (s *Storage) List(status *string) [][]string {
 			})
 		}
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i][0] < result[j][0]
+	})
+
 	return result
 }
