@@ -1,5 +1,5 @@
 # Task Tracker 
-Sample solution for the task-tracker challenge from roadmap.sh.
+Sample solution for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from [roadmap.sh](https://roadmap.sh/).
 ## How to run
 ```cmd
 git clone git@github.com:Kotoninja/task-tracker.git
