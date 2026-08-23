@@ -18,11 +18,11 @@ type Storage struct {
 	filePath string
 	pk       uint64
 	mx       *sync.Mutex
-	tasks    []modules.Task
+	tasks    map[uint64]modules.Task
 }
 
 func NewStore(filePath string) (*Storage, error) {
-	s := &Storage{filePath: filePath, pk: 1, mx: &sync.Mutex{}, tasks: []modules.Task{}}
+	s := &Storage{filePath: filePath, pk: 1, mx: &sync.Mutex{}, tasks: map[uint64]modules.Task{}}
 	err := s.load()
 	if err != nil {
 		fmt.Println(err)
@@ -78,7 +78,7 @@ func (s *Storage) Add(description string) (string, error) {
 	newTask := modules.NewTask(s.pk, description)
 	s.pk += 1
 
-	s.tasks = append(s.tasks, *newTask)
+	s.tasks[newTask.Id] = *newTask
 	if err := s.save(); err != nil {
 		return "", err
 	}
