@@ -6,7 +6,6 @@ git clone git@github.com:Kotoninja/task-tracker.git
 cd task-tracker
 go build -o task-cli
 ```
-
 ## The list of commands and their usage is given below:
 ```
 # Adding a new task
@@ -29,4 +28,6 @@ task-cli list done
 task-cli list todo
 task-cli list in-progress
 ```
-
+## Package list
+1. Cobra - library for creating powerful modern CLI applications
+2. Tablewriter - library for generating rich text-based tables
