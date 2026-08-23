@@ -54,6 +54,23 @@ func (s *Storage) load() error {
 	return nil
 }
 
+func (s *Storage) save() error {
+	file, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+
+	if err = encoder.Encode(s.tasks); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Storage) Add(description string) (string, error) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
@@ -62,20 +79,8 @@ func (s *Storage) Add(description string) (string, error) {
 	s.pk += 1
 
 	s.tasks = append(s.tasks, *newTask)
-
-	file, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
+	if err := s.save(); err != nil {
 		return "", err
 	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-
-	if err = encoder.Encode(s.tasks); err != nil {
-		return "", err
-	}
-
-	fmt.Println(s.pk)
 	return fmt.Sprintf("Task added successfully (ID: %d)\n", newTask.Id), nil
 }

@@ -22,7 +22,12 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 1 {
-			fmt.Println(storage.StorageIO.Add(args[0]))
+			output, err := storage.StorageIO.Add(args[0])
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Println(output)
+			}
 		} else if len(args) == 0 {
 			fmt.Println("Nothing add")
 		} else {
