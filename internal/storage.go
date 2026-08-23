@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
 	"sync"
+	"time"
 
 	"github.com/Kotoninja/task-tracker/pkg/modules"
 )
@@ -18,11 +21,11 @@ type Storage struct {
 	filePath string
 	pk       uint64
 	mx       *sync.Mutex
-	tasks    []modules.Task
+	tasks    map[uint64]modules.Task
 }
 
 func NewStore(filePath string) (*Storage, error) {
-	s := &Storage{filePath: filePath, pk: 1, mx: &sync.Mutex{}, tasks: []modules.Task{}}
+	s := &Storage{filePath: filePath, pk: 1, mx: &sync.Mutex{}, tasks: map[uint64]modules.Task{}}
 	err := s.load()
 	if err != nil {
 		fmt.Println(err)
@@ -54,18 +57,10 @@ func (s *Storage) load() error {
 	return nil
 }
 
-func (s *Storage) Add(description string) (string, error) {
-	s.mx.Lock()
-	defer s.mx.Unlock()
-
-	newTask := modules.NewTask(s.pk, description)
-	s.pk += 1
-
-	s.tasks = append(s.tasks, *newTask)
-
-	file, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_CREATE, 0644)
+func (s *Storage) save() error {
+	file, err := os.OpenFile(s.filePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer file.Close()
 
@@ -73,9 +68,85 @@ func (s *Storage) Add(description string) (string, error) {
 	encoder.SetIndent("", "  ")
 
 	if err = encoder.Encode(s.tasks); err != nil {
-		return "", err
+		return err
 	}
 
-	fmt.Println(s.pk)
-	return fmt.Sprintf("Task added successfully (ID: %d)\n", newTask.Id), nil
+	return nil
+}
+
+func (s *Storage) Add(description string) (string, error) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	newTask := modules.NewTask(s.pk, description)
+	s.pk += 1
+
+	s.tasks[newTask.Id] = *newTask
+	if err := s.save(); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("Task added successfully (ID: %d)", newTask.Id), nil
+}
+
+func (s *Storage) Delete(id uint64) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	delete(s.tasks, id)
+
+	if err := s.save(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Storage) Update(id uint64, newDescription *string, newStatus *string) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	task, ok := s.tasks[id]
+	if !ok {
+		return errors.New("There is no task with this ID.")
+	}
+
+	if newDescription != nil {
+		task.Description = *newDescription
+	}
+	if newStatus != nil {
+		task.Status = modules.TaskStatuses(*newStatus)
+	}
+
+	task.UpdatedAt = time.Now()
+	s.tasks[id] = task
+
+	if err := s.save(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Storage) List(status *string) [][]string {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	result := [][]string{}
+
+	for id, task := range s.tasks {
+		if status == nil || task.Status == modules.TaskStatuses(*status) {
+			result = append(result, []string{
+				strconv.FormatUint(id, 10),
+				task.Description,
+				string(task.Status),
+				task.CreatedAt.Format(time.DateTime),
+				task.UpdatedAt.Format(time.DateTime),
+			})
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i][0] < result[j][0]
+	})
+
+	return result
 }

@@ -4,20 +4,20 @@ import (
 	"time"
 )
 
-type TaskStatus string
+type TaskStatuses string
 
 var (
-	Todo       TaskStatus = "todo"
-	InProgress TaskStatus = "in-progress"
-	Done       TaskStatus = "done"
+	Todo       TaskStatuses = "todo"
+	InProgress TaskStatuses = "in-progress"
+	Done       TaskStatuses = "done"
 )
 
 type Task struct {
-	Id          uint64     `json:"id"`
-	Description string     `json:"description"`
-	Status      TaskStatus `json:"status"`
-	CreatedAt   time.Time  `json:"createdat"`
-	UpdatedAt   time.Time  `json:"updatedat"`
+	Id          uint64       `json:"id"`
+	Description string       `json:"description"`
+	Status      TaskStatuses `json:"status"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 func NewTask(id uint64, description string) *Task {
